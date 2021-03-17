@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class Publisher {
+class Publisher {
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -18,7 +18,7 @@ public class Publisher {
     private ChannelTopic topic;
 
     @PostMapping(path = "/publish")
-    public String publish(@RequestBody OrderRequest orderRequest){
+    public String publish( @RequestBody OrderRequest orderRequest){
         redisTemplate.convertAndSend(topic.getTopic(), orderRequest.toString());
         return "Event published";
     }
