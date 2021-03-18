@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PendingOrder {
 
+
+
+
+
     public String product;
     public int quantity;
     public double price;
