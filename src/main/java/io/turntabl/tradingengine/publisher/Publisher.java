@@ -24,7 +24,7 @@ public class Publisher{
     }
 
     @PostMapping(path="/publish")
-    public String publish(@RequestBody Orders orderRequest){
+    public String publish(@RequestBody OrderRequest orderRequest){
         redisTemplate.convertAndSend(topic.getTopic(), orderRequest.toString());
         return "Event published";
     }
