@@ -17,4 +17,6 @@ public class OrderService {
     public void createOrders(Orders orders){
         this.orderRepository.save(orders);
     }
+
+    public Orders getOrder(Long id){ return this.orderRepository.getOne(id);}
 }

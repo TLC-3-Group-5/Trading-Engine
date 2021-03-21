@@ -1,9 +1,11 @@
 package io.turntabl.tradingengine.resources.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table
 @Entity(name="Orders")
@@ -39,6 +41,10 @@ public class Orders {
     @JoinColumn(name="portfolio_id")
     @JsonBackReference
     private Portfolio portfolio;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "orders")
+    private List<Trade> tradeList;
 
     private LocalDateTime createdAt;
 
