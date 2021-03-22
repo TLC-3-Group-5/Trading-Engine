@@ -8,6 +8,7 @@ import io.turntabl.tradingengine.resources.repository.OrderRepository;
 import io.turntabl.tradingengine.resources.repository.TradeRepository;
 import io.turntabl.tradingengine.resources.service.OrderService;
 import io.turntabl.tradingengine.resources.service.TradeService;
+import org.hibernate.service.spi.InjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,38 +23,34 @@ public class Receiver implements MessageListener {
     Logger logger = LoggerFactory.getLogger(Receiver.class);
 
     @Autowired
-    private OrderService orderService;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private TradeService tradeService;
-
-
-    public Receiver(OrderService orderService, TradeService tradeService) {
-        this.orderService = orderService;
-        this.tradeService = tradeService;
-    }
+    private TradeRepository tradeRepository;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
             Orders request = objectMapper.readValue(message.toString(), Orders.class);
-            System.out.println("PortfolioId "+request.getId());
-            System.out.println("Product "+request.getProduct());
+//            System.out.println("PortfolioId "+request.getId());
+//            System.out.println("Product "+request.getProduct());
 
             Trade trade = new Trade();
             trade.setProduct(request.getProduct());
             trade.setPrice(request.getPrice());
             trade.setQuantity(request.getQuantity());
             trade.setSide(request.getSide());
-            trade.setOrders(orderService.getOrder(request.getId()));
-            tradeService.createTrade(trade);
-
+            trade.setExchange("exchange2");
+            trade.setOrders(orderRepository.findById(request.getId()).orElse(null));
+            tradeRepository.save(trade);
+//            System.out.println(trade);
+//            objectMapper.writeValueAsString(trade.getOrders());
             Jedis jedis = new Jedis("localhost");
-            jedis.rpush("exchange1", String.valueOf(trade));
+            jedis.rpush("exchange1", objectMapper.writeValueAsString(trade));
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        logger.info("Consumed event {}", message);
+//        logger.info("Consumed event {}", message);
     }
 }

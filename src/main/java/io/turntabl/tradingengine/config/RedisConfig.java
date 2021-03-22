@@ -14,11 +14,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
 
 @Configuration
 public class RedisConfig {
+
+    @Autowired
+    Receiver receiver;
 
 //    @Autowired
 //    private OrderService orderService;
@@ -36,15 +40,15 @@ public class RedisConfig {
 //        return new Receiver(orderService, tradeService);
 //    }
 
-    @Bean
-    OrderService orderService(OrderRepository orderRepository){
-        return new OrderService(orderRepository);
-    }
-
-    @Bean
-    TradeService tradeService(TradeRepository tradeRepository){
-        return new TradeService(tradeRepository);
-    }
+//    @Bean
+//    OrderService orderService(OrderRepository orderRepository){
+//        return new OrderService(orderRepository);
+//    }
+//
+//    @Bean
+//    TradeService tradeService(TradeRepository tradeRepository){
+//        return new TradeService(tradeRepository);
+//    }
 
     @Bean
     public JedisConnectionFactory connectionFactory(){
@@ -69,15 +73,15 @@ public class RedisConfig {
     }
 
     @Bean
-    public MessageListenerAdapter messageListenerAdapter(Receiver receiver){
+    public MessageListenerAdapter messageListenerAdapter(){
         return new MessageListenerAdapter(receiver);
     }
 
     @Bean
-    public RedisMessageListenerContainer redisMessageListenerContainer(MessageListenerAdapter messageListenerAdapter){
+    public RedisMessageListenerContainer redisMessageListenerContainer(){
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory());
-        container.addMessageListener(messageListenerAdapter, topic());
+        container.addMessageListener(messageListenerAdapter(), topic());
         return container;
     }
 }

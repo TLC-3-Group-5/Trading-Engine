@@ -30,6 +30,8 @@ public class Trade {
 
     private String product;
 
+    private String exchange;
+
     private Integer quantity;
 
     private String side;
@@ -54,6 +56,14 @@ public class Trade {
 
     public Long getId() {
         return id;
+    }
+
+    public String getExchange() {
+        return exchange;
+    }
+
+    public void setExchange(String exchange) {
+        this.exchange = exchange;
     }
 
     public void setId(Long id) {
