@@ -1,9 +1,5 @@
 package io.turntabl.tradingengine.config;
 
-import io.turntabl.tradingengine.resources.repository.OrderRepository;
-import io.turntabl.tradingengine.resources.repository.TradeRepository;
-import io.turntabl.tradingengine.resources.service.OrderService;
-import io.turntabl.tradingengine.resources.service.TradeService;
 import io.turntabl.tradingengine.subscriber.Receiver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +10,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericToStringSerializer;
 
 
@@ -23,32 +18,6 @@ public class RedisConfig {
 
     @Autowired
     Receiver receiver;
-
-//    @Autowired
-//    private OrderService orderService;
-//
-//    @Autowired
-//    private TradeService tradeService;
-//
-//    public RedisConfig(OrderService orderService, TradeService tradeService) {
-//        this.orderService = orderService;
-//        this.tradeService = tradeService;
-//    }
-
-//    @Bean
-//    Receiver receiver(OrderService orderService, TradeService tradeService){
-//        return new Receiver(orderService, tradeService);
-//    }
-
-//    @Bean
-//    OrderService orderService(OrderRepository orderRepository){
-//        return new OrderService(orderRepository);
-//    }
-//
-//    @Bean
-//    TradeService tradeService(TradeRepository tradeRepository){
-//        return new TradeService(tradeRepository);
-//    }
 
     @Bean
     public JedisConnectionFactory connectionFactory(){

@@ -6,9 +6,6 @@ import io.turntabl.tradingengine.resources.model.Orders;
 import io.turntabl.tradingengine.resources.model.Trade;
 import io.turntabl.tradingengine.resources.repository.OrderRepository;
 import io.turntabl.tradingengine.resources.repository.TradeRepository;
-import io.turntabl.tradingengine.resources.service.OrderService;
-import io.turntabl.tradingengine.resources.service.TradeService;
-import org.hibernate.service.spi.InjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +29,6 @@ public class Receiver implements MessageListener {
     public void onMessage(Message message, byte[] pattern) {
         try {
             Orders request = objectMapper.readValue(message.toString(), Orders.class);
-//            System.out.println("PortfolioId "+request.getId());
-//            System.out.println("Product "+request.getProduct());
 
             Trade trade = new Trade();
             trade.setProduct(request.getProduct());
@@ -41,6 +36,7 @@ public class Receiver implements MessageListener {
             trade.setQuantity(request.getQuantity());
             trade.setSide(request.getSide());
             trade.setExchange("exchange2");
+            trade.setStatus("OPEN");
             trade.setOrders(orderRepository.findById(request.getId()).orElse(null));
             tradeRepository.save(trade);
 //            System.out.println(trade);

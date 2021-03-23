@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class TradeService {
     @Autowired
@@ -31,5 +34,15 @@ public class TradeService {
         }else{
             throw new IllegalStateException("trade does not exist");
         }
+    }
+
+    // Get All Open Trades
+    public List<Trade> getAllOpenTrade(){
+        return tradeRepository.findAll().stream()
+                .filter(trade->trade.getStatus()!=null
+                        && trade.getStatus().equals("OPEN")
+                        &&trade.getExchange_order_id()!=null)
+                .collect(Collectors.toList());
+
     }
 }

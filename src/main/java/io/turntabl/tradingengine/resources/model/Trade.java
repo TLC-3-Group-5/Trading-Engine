@@ -36,6 +36,8 @@ public class Trade {
 
     private String side;
 
+    private String status;
+
     @ManyToOne
     @JoinColumn(name="orders_id")
     @JsonBackReference
@@ -81,8 +83,10 @@ public class Trade {
                 ", exchange_order_id='" + exchange_order_id + '\'' +
                 ", price=" + price +
                 ", product='" + product + '\'' +
+                ", exchange='" + exchange + '\'' +
                 ", quantity=" + quantity +
                 ", side='" + side + '\'' +
+                ", status='" + status + '\'' +
                 ", orders=" + orders +
                 '}';
     }
@@ -129,5 +133,13 @@ public class Trade {
 
     public void setOrders(Orders orders) {
         this.orders = orders;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
