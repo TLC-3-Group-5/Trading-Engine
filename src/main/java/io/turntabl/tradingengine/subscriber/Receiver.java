@@ -1,5 +1,7 @@
 package io.turntabl.tradingengine.subscriber;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.turntabl.tradingengine.resources.model.Orders;
@@ -9,6 +11,7 @@ import io.turntabl.tradingengine.resources.repository.TradeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,9 @@ public class Receiver implements MessageListener {
 
     @Autowired
     private TradeRepository tradeRepository;
+
+    @Autowired
+    private Environment env;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
@@ -41,7 +47,11 @@ public class Receiver implements MessageListener {
             tradeRepository.save(trade);
 //            System.out.println(trade);
 //            objectMapper.writeValueAsString(trade.getOrders());
-            Jedis jedis = new Jedis("localhost");
+
+            Jedis jedis = new Jedis(
+                Optional.ofNullable(env.getProperty("app.SPRING_REDIS_URI")).orElse("")
+            );
+            
             jedis.rpush("exchange1", objectMapper.writeValueAsString(trade));
 
         } catch (JsonProcessingException e) {
