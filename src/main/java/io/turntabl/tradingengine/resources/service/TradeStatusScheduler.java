@@ -40,31 +40,15 @@ public class TradeStatusScheduler {
   @Async
   @Scheduled(fixedDelay = 5000)
   public void scheduleFixedRateTaskAsync() throws InterruptedException, JsonProcessingException {
-    // TODO: logic
-//    System.out.println("printing from trade scheduler");
+
     // fetch all trades with status=open and exchange_id != null
-    List<Trade> OpenTradeList = tradeService.getAllOpenTrade();
     // for each of such trade, get exchange status (call service)
-//    List<String> status = OpenTradeList.stream()
-//            .map(trade ->restTemplate.getForObject("http://localhost:8084/get-order-status/"
-//                    .concat(trade.getExchange_order_id())
-//                    .concat("/").concat(trade.getExchange()), String.class)).collect(Collectors.toList());
-//    System.out.println(status);
-//    List<TradeExecution> tradeExecutions = status.stream().map(st-> {
-//      try {
-//        return objectMapper.readValue(st, TradeExecution.class);
-//        } catch (JsonProcessingException e) {
-//        e.printStackTrace();
-//        }
-//      return null;
-//    }).collect(Collectors.toList());
-//    System.out.println(tradeExecutions);
-//    System.out.println(tradeService.getAllOpenTrade());
     // update trade accordingly
     // update client order if necessary
     // update portfolio if necessary
     // update user if necessary
 
+    List<Trade> OpenTradeList = tradeService.getAllOpenTrade();
 
     for(Trade trade: OpenTradeList){
       String data = restTemplate.getForObject("http://localhost:8084/get-order-status/"
@@ -83,9 +67,21 @@ public class TradeStatusScheduler {
           variables.put("orderId", trade.getOrders().getId());
           restTemplate.put("http://localhost:8082/update-order-status/{orderId}", "CLOSE", variables);
 
-          if(trade.getStatus().equals("BUY")){
+          if(trade.getOrders().getStatus().equals("BUY")){
+
+            List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
+            Map<String, Long> parameters = new HashMap<>();
+            parameters.put("portfolioId", trade.getOrders().getPortfolio().getId());
+            restTemplate.put("http://localhost:8081/portfolio/add-stock-to-portfolio/{portfolioId}", closedTrades, parameters);
 
           }else{
+
+            List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
+            Double valueOfTrades = closedTrades.stream()
+                    .mapToDouble(trade1 -> trade1.getPrice()*trade1.getQuantity()).sum();
+            Map<String, Long> parameters = new HashMap<>();
+            parameters.put("portfolioId", trade.getOrders().getPortfolio().getId());
+            restTemplate.put("http://localhost:8081/portfolio/update-client-balance-after-sale/{portfolioId}", valueOfTrades, parameters);
 
           }
         }else{
