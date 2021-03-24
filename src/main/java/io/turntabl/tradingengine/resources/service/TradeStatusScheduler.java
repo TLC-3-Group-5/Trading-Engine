@@ -45,21 +45,21 @@ public class TradeStatusScheduler {
     // fetch all trades with status=open and exchange_id != null
     List<Trade> OpenTradeList = tradeService.getAllOpenTrade();
     // for each of such trade, get exchange status (call service)
-    List<String> status = OpenTradeList.stream()
-            .map(trade ->restTemplate.getForObject("http://localhost:8084/get-order-status/"
-                    .concat(trade.getExchange_order_id())
-                    .concat("/").concat(trade.getExchange()), String.class)).collect(Collectors.toList());
-    System.out.println(status);
-    List<TradeExecution> tradeExecutions = status.stream().map(st-> {
-      try {
-        return objectMapper.readValue(st, TradeExecution.class);
-        } catch (JsonProcessingException e) {
-        e.printStackTrace();
-        }
-      return null;
-    }).collect(Collectors.toList());
-    System.out.println(tradeExecutions);
-    System.out.println(tradeService.getAllOpenTrade());
+//    List<String> status = OpenTradeList.stream()
+//            .map(trade ->restTemplate.getForObject("http://localhost:8084/get-order-status/"
+//                    .concat(trade.getExchange_order_id())
+//                    .concat("/").concat(trade.getExchange()), String.class)).collect(Collectors.toList());
+//    System.out.println(status);
+//    List<TradeExecution> tradeExecutions = status.stream().map(st-> {
+//      try {
+//        return objectMapper.readValue(st, TradeExecution.class);
+//        } catch (JsonProcessingException e) {
+//        e.printStackTrace();
+//        }
+//      return null;
+//    }).collect(Collectors.toList());
+//    System.out.println(tradeExecutions);
+//    System.out.println(tradeService.getAllOpenTrade());
     // update trade accordingly
     // update client order if necessary
     // update portfolio if necessary
@@ -82,6 +82,12 @@ public class TradeStatusScheduler {
           Map<String, Long> variables = new HashMap<>();
           variables.put("orderId", trade.getOrders().getId());
           restTemplate.put("http://localhost:8082/update-order-status/{orderId}", "CLOSE", variables);
+
+          if(trade.getStatus().equals("BUY")){
+
+          }else{
+
+          }
         }else{
           Map<String, Long> variables = new HashMap<>();
           variables.put("orderId", trade.getOrders().getId());
