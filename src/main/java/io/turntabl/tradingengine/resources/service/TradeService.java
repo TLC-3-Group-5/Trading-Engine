@@ -45,4 +45,15 @@ public class TradeService {
                 .collect(Collectors.toList());
 
     }
+
+    //Update a trade
+    public void changeTradeStatus(Long id, String status){
+        Trade trade = tradeRepository.findById(id).orElse(null);
+        if(trade!=null){
+            trade.setStatus(status);
+            tradeRepository.save(trade);
+        }else{
+            throw new IllegalStateException("trade does not exist");
+        }
+    }
 }
