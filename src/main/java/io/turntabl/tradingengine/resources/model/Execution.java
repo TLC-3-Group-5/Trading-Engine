@@ -1,50 +1,26 @@
 package io.turntabl.tradingengine.resources.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({ "timestamp", "price", "quantity"})
 public class Execution {
-    @Id
-    @SequenceGenerator(
-            name= "client_sequence",
-            sequenceName = "client_sequence",
-            allocationSize = 1
-    )
 
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "client_sequence"
-    )
-    @Column(
-            nullable=false,
-            updatable = false
-    )
-    @JsonIgnore
-    private Long id;
-
-    private Double price;
-
-    private Integer quantity;
-
+    @JsonProperty("timestamp")
     private LocalDateTime timestamp;
 
-    @ManyToOne
-    @JoinColumn(name="tradeexecution_id")
-    @JsonBackReference
-    private TradeExecution tradeExecution;
+    @JsonProperty("price")
+    private Double price;
+
+    @JsonProperty("quantity")
+    private Integer quantity;
 
     public Execution() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Double getPrice() {
@@ -71,11 +47,5 @@ public class Execution {
         this.timestamp = timestamp;
     }
 
-    public TradeExecution getTradeExecution() {
-        return tradeExecution;
-    }
 
-    public void setTradeExecution(TradeExecution tradeExecution) {
-        this.tradeExecution = tradeExecution;
-    }
 }

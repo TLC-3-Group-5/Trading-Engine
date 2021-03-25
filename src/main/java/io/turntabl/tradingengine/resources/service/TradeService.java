@@ -1,5 +1,6 @@
 package io.turntabl.tradingengine.resources.service;
 
+import io.turntabl.tradingengine.resources.model.Orders;
 import io.turntabl.tradingengine.resources.model.Trade;
 import io.turntabl.tradingengine.resources.repository.TradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,28 @@ public class TradeService {
                 .filter(trade->trade.getStatus()!=null
                         && trade.getStatus().equals("OPEN")
                         &&trade.getExchange_order_id()!=null)
+                .collect(Collectors.toList());
+
+    }
+
+    //Update a trade
+    public void changeTradeStatus(Long id, String status){
+        Trade trade = tradeRepository.findById(id).orElse(null);
+        if(trade!=null){
+            trade.setStatus(status);
+            tradeRepository.save(trade);
+        }else{
+            throw new IllegalStateException("trade does not exist");
+        }
+    }
+
+    // Get All Closed Trades
+    public List<Trade> getAllClosedTrade(Orders order){
+        return tradeRepository.findAll().stream()
+                .filter(trade->trade.getStatus()!=null
+                        && trade.getStatus().equals("CLOSE")
+                        &&trade.getExchange_order_id()!=null
+                        &&trade.getOrders().equals(order))
                 .collect(Collectors.toList());
 
     }
