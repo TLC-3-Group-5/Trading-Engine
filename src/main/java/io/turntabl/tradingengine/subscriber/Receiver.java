@@ -80,7 +80,8 @@ public class Receiver implements MessageListener {
                 int amountBought = Math.min(order.getQuantity(), marketData_1.getBUY_LIMIT());
                 Trade trade = new Trade();
                 trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
+                // We have to buy with exchange 1 price
+                trade.setPrice(marketData_1.getASK_PRICE());
                 trade.setQuantity(amountBought);
                 trade.setSide(order.getSide());
                 trade.setExchange("exchange");
@@ -94,7 +95,8 @@ public class Receiver implements MessageListener {
                 if(remainder>0){
                     Trade trade1 = new Trade();
                     trade.setProduct(order.getProduct());
-                    trade.setPrice(order.getPrice());
+                    // Buy with exchange 2 price
+                    trade.setPrice(marketData_2.getASK_PRICE());
                     trade.setQuantity(remainder);
                     trade.setSide(order.getSide());
                     trade.setExchange("exchange2");
@@ -109,7 +111,8 @@ public class Receiver implements MessageListener {
                 int amountBought = Math.min(order.getQuantity(), marketData_2.getBUY_LIMIT());
                 Trade trade = new Trade();
                 trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
+                // Buy with exchange 2 price
+                trade.setPrice(marketData_2.getASK_PRICE());
                 trade.setQuantity(amountBought);
                 trade.setSide(order.getSide());
                 trade.setExchange("exchange2");
@@ -123,7 +126,8 @@ public class Receiver implements MessageListener {
                 if(remainder>0){
                     Trade trade1 = new Trade();
                     trade.setProduct(order.getProduct());
-                    trade.setPrice(order.getPrice());
+                    // Buy with exchange 1 price
+                    trade.setPrice(marketData_1.getASK_PRICE());
                     trade.setQuantity(remainder);
                     trade.setSide(order.getSide());
                     trade.setExchange("exchange");
@@ -140,7 +144,8 @@ public class Receiver implements MessageListener {
                 int amountSold = Math.min(order.getQuantity(), marketData_1.getSELL_LIMIT());
                 Trade trade = new Trade();
                 trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
+                // Sell at exchange 1 price
+                trade.setPrice(marketData_1.getBID_PRICE());
                 trade.setQuantity(amountSold);
                 trade.setSide(order.getSide());
                 trade.setExchange("exchange");
@@ -154,7 +159,8 @@ public class Receiver implements MessageListener {
                 if(remainder>0){
                     Trade trade1 = new Trade();
                     trade.setProduct(order.getProduct());
-                    trade.setPrice(order.getPrice());
+                    // Sell at exchange 2 price
+                    trade.setPrice(marketData_2.getBID_PRICE());
                     trade.setQuantity(remainder);
                     trade.setSide(order.getSide());
                     trade.setExchange("exchange2");
@@ -168,7 +174,8 @@ public class Receiver implements MessageListener {
                 int amountSold = Math.min(order.getQuantity(), marketData_2.getSELL_LIMIT());
                 Trade trade = new Trade();
                 trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
+                // Sell at exchange 2 price
+                trade.setPrice(marketData_2.getBID_PRICE());
                 trade.setQuantity(amountSold);
                 trade.setSide(order.getSide());
                 trade.setExchange("exchange2");
@@ -182,7 +189,8 @@ public class Receiver implements MessageListener {
                 if(remainder>0){
                     Trade trade1 = new Trade();
                     trade.setProduct(order.getProduct());
-                    trade.setPrice(order.getPrice());
+                    // Sell at exchange 1 price
+                    trade.setPrice(marketData_1.getBID_PRICE());
                     trade.setQuantity(remainder);
                     trade.setSide(order.getSide());
                     trade.setExchange("exchange");
