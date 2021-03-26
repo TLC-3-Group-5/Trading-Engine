@@ -2,6 +2,7 @@ package io.turntabl.tradingengine.config;
 
 import io.turntabl.tradingengine.subscriber.Receiver;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,11 @@ public class RedisConfig {
 
         configuration.setHostName(Optional.ofNullable(env.getProperty("app.SPRING_REDIS_URL")).orElse(""));
         configuration.setPort(Integer.parseInt(env.getProperty("app.SPRING_REDIS_PORT")));
-        configuration.setUsername(env.getProperty("app.SPRING_REDIS_USER"));
-        configuration.setPassword(env.getProperty("app.SPRING_REDIS_PASS"));
+
+        if(Arrays.asList(this.env.getActiveProfiles()).contains("prod")) {
+            configuration.setUsername(env.getProperty("app.SPRING_REDIS_USER"));
+            configuration.setPassword(env.getProperty("app.SPRING_REDIS_PASS"));
+        }
 
         return new JedisConnectionFactory(configuration);
     }
