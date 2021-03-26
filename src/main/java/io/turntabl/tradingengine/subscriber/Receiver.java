@@ -77,61 +77,90 @@ public class Receiver implements MessageListener {
 
             if(marketData_1.getASK_PRICE() <= marketData_2.getASK_PRICE()){
 
-                int amountBought = Math.min(order.getQuantity(), marketData_1.getBUY_LIMIT());
-                Trade trade = new Trade();
-                trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
-                trade.setQuantity(amountBought);
-                trade.setSide(order.getSide());
-                trade.setExchange("exchange");
-                trade.setStatus("OPEN");
-                trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
-                tradeRepository.save(trade);
-                tradeList.add(trade);
-
-                int remainder = order.getQuantity()-amountBought;
-
-                if(remainder>0){
-                    Trade trade1 = new Trade();
+                if(marketData_1.getASK_PRICE() != 0){
+                    int amountBought = Math.min(order.getQuantity(), marketData_1.getBUY_LIMIT());
+                    Trade trade = new Trade();
                     trade.setProduct(order.getProduct());
                     trade.setPrice(order.getPrice());
-                    trade.setQuantity(remainder);
-                    trade.setSide(order.getSide());
-                    trade.setExchange("exchange2");
-                    trade.setStatus("OPEN");
-                    trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
-                    tradeRepository.save(trade1);
-                    tradeList.add(trade1);
-                }
-
-            }else{
-
-                int amountBought = Math.min(order.getQuantity(), marketData_2.getBUY_LIMIT());
-                Trade trade = new Trade();
-                trade.setProduct(order.getProduct());
-                trade.setPrice(order.getPrice());
-                trade.setQuantity(amountBought);
-                trade.setSide(order.getSide());
-                trade.setExchange("exchange2");
-                trade.setStatus("OPEN");
-                trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
-                tradeRepository.save(trade);
-                tradeList.add(trade);
-
-                int remainder = order.getQuantity() - amountBought;
-
-                if(remainder>0){
-                    Trade trade1 = new Trade();
-                    trade.setProduct(order.getProduct());
-                    trade.setPrice(order.getPrice());
-                    trade.setQuantity(remainder);
+                    trade.setQuantity(amountBought);
                     trade.setSide(order.getSide());
                     trade.setExchange("exchange");
                     trade.setStatus("OPEN");
                     trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
+                    tradeRepository.save(trade);
+                    tradeList.add(trade);
+
+                    int remainder = order.getQuantity()-amountBought;
+
+                    if(remainder>0){
+                        Trade trade1 = new Trade();
+                        trade.setProduct(order.getProduct());
+                        trade.setPrice(order.getPrice());
+                        trade.setQuantity(remainder);
+                        trade.setSide(order.getSide());
+                        trade.setExchange("exchange2");
+                        trade.setStatus("OPEN");
+                        trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
+                        tradeRepository.save(trade1);
+                        tradeList.add(trade1);
+                    }
+
+                }else{
+                    Trade trade = new Trade();
+                    trade.setProduct(order.getProduct());
+                    trade.setPrice(order.getPrice());
+                    trade.setQuantity(order.getQuantity());
+                    trade.setSide(order.getSide());
+                    trade.setExchange("exchange2");
+                    trade.setStatus("OPEN");
+                    trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
+                    tradeRepository.save(trade);
+                    tradeList.add(trade);
+                }
+            }else{
+
+                if(marketData_2.getASK_PRICE()!=0){
+                    int amountBought = Math.min(order.getQuantity(), marketData_2.getBUY_LIMIT());
+                    Trade trade = new Trade();
+                    trade.setProduct(order.getProduct());
+                    trade.setPrice(order.getPrice());
+                    trade.setQuantity(amountBought);
+                    trade.setSide(order.getSide());
+                    trade.setExchange("exchange2");
+                    trade.setStatus("OPEN");
+                    trade.setOrders(orderRepository.findById(order.getId()).orElse(null));
+                    tradeRepository.save(trade);
+                    tradeList.add(trade);
+
+                    int remainder = order.getQuantity() - amountBought;
+
+                    if(remainder>0){
+                        Trade trade1 = new Trade();
+                        trade1.setProduct(order.getProduct());
+                        trade1.setPrice(order.getPrice());
+                        trade1.setQuantity(remainder);
+                        trade1.setSide(order.getSide());
+                        trade1.setExchange("exchange");
+                        trade1.setStatus("OPEN");
+                        trade1.setOrders(orderRepository.findById(order.getId()).orElse(null));
+                        tradeRepository.save(trade1);
+                        tradeList.add(trade1);
+                    }
+                }else{
+
+                    Trade trade1 = new Trade();
+                    trade1.setProduct(order.getProduct());
+                    trade1.setPrice(order.getPrice());
+                    trade1.setQuantity(order.getQuantity());
+                    trade1.setSide(order.getSide());
+                    trade1.setExchange("exchange");
+                    trade1.setStatus("OPEN");
+                    trade1.setOrders(orderRepository.findById(order.getId()).orElse(null));
                     tradeRepository.save(trade1);
                     tradeList.add(trade1);
+
                 }
+
 
             }
 
