@@ -1,6 +1,8 @@
 package io.turntabl.tradingengine.resources.controller;
 
-import io.turntabl.tradingengine.resources.model.Response;
+import java.util.List;
+
+import io.turntabl.tradingengine.resources.model.Trade;
 import io.turntabl.tradingengine.resources.service.TradeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,14 +27,8 @@ public class TradeController {
         tradeService.updateTrade(tradeId, exchangeId);
     }
 
-    // /trade?order_id=xxx
-    @GetMapping
-    public Response getTradesPerOrder(@PathVariable(name = "order_id") Long orderId){
-        var res = new Response();
-
-        res.setData(tradeService.getTradesPerOrder(orderId));
-        res.setCode(200);
-
-        return res;
+    @GetMapping(path = "/order/{orderId}")
+    public List<Trade> getTradesPerOrder(@PathVariable Long orderId) {
+        return tradeService.getTradesPerOrder(orderId);
     }
 }
