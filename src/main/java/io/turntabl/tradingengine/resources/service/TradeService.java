@@ -4,6 +4,7 @@ import io.turntabl.tradingengine.resources.model.Orders;
 import io.turntabl.tradingengine.resources.model.Trade;
 import io.turntabl.tradingengine.resources.repository.TradeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,4 +69,11 @@ public class TradeService {
                 .collect(Collectors.toList());
 
     }
+
+    public List<Trade> getTradesPerOrder(Long orderId) {
+        return tradeRepository.findAll().stream()
+            .filter((Trade t) -> t.getOrders().getId().equals(orderId))
+            .collect(Collectors.toList());
+    }
+
 }
