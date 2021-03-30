@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -44,83 +45,57 @@ public class TradeStatusScheduler {
   @Async
   @Scheduled(fixedDelay = 5000)
   public void scheduleFixedRateTaskAsync() throws InterruptedException, JsonProcessingException {
-
+    
     // fetch all trades with status=open and exchange_id != null
-    // for each of such trade, get exchange status (call service)
-    // update trade accordingly
-    // update client order if necessary
-    // update portfolio if necessary
-    // update user if necessary
-
     List<Trade> OpenTradeList = tradeService.getAllOpenTrade();
-
-    for(Trade trade: OpenTradeList){
-      String data = restTemplate.getForObject(
-        Optional.ofNullable(env.getProperty("app.exchange_connectivity_url")).orElse("")
-              .concat("/get-order-status/")
-              .concat(trade.getExchange_order_id())
-              .concat("/").concat(trade.getExchange()), String.class);
-      TradeExecution execution = objectMapper.readValue(data, TradeExecution.class);
-
-      if(execution.getQuantity()==execution.getCumulativeQuantity()){
+    
+    // for each of such trade, get exchange status (call service)
+    for (Trade trade : OpenTradeList) {
+      try {
+        restTemplate.getForObject(Optional.ofNullable(env.getProperty("app.exchange_connectivity_url"))
+        .orElse("").concat("/get-order-status/").concat(trade.getExchange_order_id()).concat("/")
+        .concat(trade.getExchange()), String.class);
+      } catch (HttpServerErrorException e) {
+        // update trade, client order, portfolio, user accordingly
+        
+        // assume the trade has closed on 5xx server error
         tradeService.changeTradeStatus(trade.getId(), "CLOSE");
-        List<Trade> trades =
-                (List<Trade>) objectMapper.readValue(restTemplate.getForObject(
-                  Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("")
-                    .concat("/trade/")
-                    .concat(String.valueOf(trade.getOrders().getId())), String.class), Trade.class);
+        List<Trade> trades = (List<Trade>) objectMapper
+            .readValue(restTemplate.getForObject(Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("")
+                .concat("/trade/").concat(String.valueOf(trade.getOrders().getId())), String.class), Trade.class);
 
-        if(trades.isEmpty()){
+        if (trades.isEmpty()) {
           Map<String, Long> variables = new HashMap<>();
           variables.put("orderId", trade.getOrders().getId());
           restTemplate.put(
-            Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("")
-              .concat("/update-order-status/{orderId}"),
-            "CLOSE",
-            variables
-          );
-
-          if(trade.getOrders().getStatus().equals("BUY")){
-
+              Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("").concat("/update-order-status/{orderId}"),
+              "CLOSE", variables);
+          if (trade.getOrders().getStatus().equals("BUY")) {
             List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
             Map<String, Long> parameters = new HashMap<>();
             parameters.put("portfolioId", trade.getOrders().getPortfolio().getId());
-            restTemplate.put(
-              Optional.ofNullable(env.getProperty("app.client_connectivity_url")).orElse("")
-                .concat("/portfolio/add-stock-to-portfolio/{portfolioId}"),
-              closedTrades,
-              parameters
-            );
-
-          }else{
-
+            restTemplate.put(Optional.ofNullable(env.getProperty("app.client_connectivity_url")).orElse("")
+                .concat("/portfolio/add-stock-to-portfolio/{portfolioId}"), closedTrades, parameters);
+          } else {
             List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
-            Double valueOfTrades = closedTrades.stream()
-                    .mapToDouble(trade1 -> trade1.getPrice()*trade1.getQuantity()).sum();
+            Double valueOfTrades = closedTrades.stream().mapToDouble(trade1 -> trade1.getPrice() * trade1.getQuantity())
+                .sum();
             Map<String, Long> parameters = new HashMap<>();
             parameters.put("portfolioId", trade.getOrders().getPortfolio().getId());
-            restTemplate.put(
-              Optional.ofNullable(env.getProperty("app.client_connectivity_url")).orElse("")
-                .concat("/portfolio/update-client-balance-after-sale/{portfolioId}"),
-              valueOfTrades,
-              parameters
-            );
-
+            restTemplate.put(Optional.ofNullable(env.getProperty("app.client_connectivity_url")).orElse("")
+                .concat("/portfolio/update-client-balance-after-sale/{portfolioId}"), valueOfTrades, parameters);
           }
-        }else{
+        } else {
           Map<String, Long> variables = new HashMap<>();
           variables.put("orderId", trade.getOrders().getId());
           restTemplate.put(
-            Optional.ofNullable(env.getProperty("app.ovs")).orElse("")
-              .concat("/update-order-status/{orderId}"),
-            "PARTIAL",
-            variables
-          );
+              Optional.ofNullable(env.getProperty("app.ovs")).orElse("").concat("/update-order-status/{orderId}"),
+              "PARTIAL", variables);
         }
 
+        // log the exception
+        e.printStackTrace();
       }
-
     }
   }
-
 }
