@@ -1,4 +1,4 @@
-package io.turntabl.producer.resources.configs;
+package io.turntabl.tradingengine.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
