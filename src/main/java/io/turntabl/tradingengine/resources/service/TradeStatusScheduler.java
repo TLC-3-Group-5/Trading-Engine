@@ -35,9 +35,7 @@ public class TradeStatusScheduler {
   @Autowired
   RestTemplate restTemplate;
 
-  ObjectMapper objectMapper = new ObjectMapper()
-          .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
+  ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
   public TradeStatusScheduler(TradeService tradeService) {
     this.tradeService = tradeService;
@@ -67,8 +65,10 @@ public class TradeStatusScheduler {
       if(execution.getQuantity()==execution.getCumulativeQuantity()){
         tradeService.changeTradeStatus(trade.getId(), "CLOSE");
         List<Trade> trades =
-                (List<Trade>) objectMapper.readValue(restTemplate.getForObject("http://localhost:8082/trade/"
-                        .concat(String.valueOf(trade.getOrders().getId())), String.class), Trade.class);
+                (List<Trade>) objectMapper.readValue(restTemplate.getForObject(
+                  Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("")
+                    .concat("/trade/")
+                    .concat(String.valueOf(trade.getOrders().getId())), String.class), Trade.class);
 
         if(trades.isEmpty()){
           Map<String, Long> variables = new HashMap<>();
