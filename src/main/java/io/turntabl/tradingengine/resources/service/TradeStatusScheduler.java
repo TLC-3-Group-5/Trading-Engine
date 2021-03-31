@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.turntabl.tradingengine.resources.model.Trade;
 import io.turntabl.tradingengine.resources.model.TradeExecution;
 
+import io.turntabl.tradingengine.resources.model.TradeList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -43,7 +44,7 @@ public class TradeStatusScheduler {
   }
 
   @Async
-  @Scheduled(fixedDelay = 5000)
+  @Scheduled(fixedDelay = 50000)
   public void scheduleFixedRateTaskAsync() throws InterruptedException, JsonProcessingException {
     
     // fetch all trades with status=open and exchange_id != null
@@ -51,6 +52,7 @@ public class TradeStatusScheduler {
     
     // for each of such trade, get exchange status (call service)
     for (Trade trade : OpenTradeList) {
+//      System.out.println(trade);
       try {
         restTemplate.getForObject(Optional.ofNullable(env.getProperty("app.exchange_connectivity_url"))
         .orElse("").concat("/get-order-status/").concat(trade.getExchange_order_id()).concat("/")
@@ -60,11 +62,12 @@ public class TradeStatusScheduler {
         
         // assume the trade has closed on 5xx server error
         tradeService.changeTradeStatus(trade.getId(), "CLOSE");
-        List<Trade> trades = (List<Trade>) objectMapper
+        System.out.println("trading");
+        TradeList trades =  objectMapper
             .readValue(restTemplate.getForObject(Optional.ofNullable(env.getProperty("app.ovs_url")).orElse("")
-                .concat("/trade/").concat(String.valueOf(trade.getOrders().getId())), String.class), Trade.class);
-
-        if (trades.isEmpty()) {
+                .concat("/order-trades/").concat(String.valueOf(trade.getOrders().getId())), String.class), TradeList.class);
+        System.out.println("Retrieved stuffs: " + trades.getTradeList());
+        if (trades.getTradeList().isEmpty()) {
           Map<String, Long> variables = new HashMap<>();
           variables.put("orderId", trade.getOrders().getId());
           restTemplate.put(
@@ -72,10 +75,12 @@ public class TradeStatusScheduler {
               "CLOSE", variables);
           if (trade.getOrders().getStatus().equals("BUY")) {
             List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
+            TradeList list = new TradeList();
+            list.setTradeList(closedTrades);
             Map<String, Long> parameters = new HashMap<>();
             parameters.put("portfolioId", trade.getOrders().getPortfolio().getId());
             restTemplate.put(Optional.ofNullable(env.getProperty("app.client_connectivity_url")).orElse("")
-                .concat("/portfolio/add-stock-to-portfolio/{portfolioId}"), closedTrades, parameters);
+                .concat("/portfolio/add-stock-to-portfolio/{portfolioId}"), TradeList.class, parameters);
           } else {
             List<Trade> closedTrades = tradeService.getAllClosedTrade(trade.getOrders());
             Double valueOfTrades = closedTrades.stream().mapToDouble(trade1 -> trade1.getPrice() * trade1.getQuantity())
