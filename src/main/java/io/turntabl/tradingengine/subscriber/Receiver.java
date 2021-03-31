@@ -69,9 +69,9 @@ public class Receiver implements MessageListener {
         ExchangeMarketData marketData_2 = objectMapper
                 .readValue(restTemplate.getForObject("https://exchange2.matraining.com/md/".concat(order.getProduct()), String.class),
                         ExchangeMarketData.class);
-        System.out.println(marketData_1);
-        System.out.println(marketData_2);
-        System.out.println(order);
+//        System.out.println(marketData_1);
+//        System.out.println(marketData_2);
+//        System.out.println(order);
 
         if(order.getSide().equals("BUY")){
 
